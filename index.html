@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en-US">
+
+<head>
+    <meta charset="utf-8" />
+    <title>hello-wasm example</title>
+</head>
+
+<body>
+    <script type="module">
+        import init, { Passring, get_random_ring, init_panic_hook, PrivateKey, version } from "./pkg/passring_wasm.js";
+        init().then(() => {
+            console.log(version())
+            init_panic_hook();
+            let ring = get_random_ring(15);
+            let privkey2 = PrivateKey.random();
+
+            let privkey = new PrivateKey(privkey2.encodeHex()); // create a private key from the hex encoded string
+
+            console.log("Using private key: ", privkey.encodeHex())
+
+            ring.push(privkey.getPublicKey());
+
+            console.log("Using ring: ", ring)
+
+            let passring = new Passring("test_voting_id", ring);
+            let issued = passring.issue(2, privkey); // issue vote for choice 2 with privkey
+            console.log("Issued: ", issued);
+
+            let result = passring.validate(issued);
+            console.log("Validated: ", result);
+
+        });
+    </script>
+</body>
+
+</html>
